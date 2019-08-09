@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29001.49
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GlasgowAstro.GuideAlert", "GlasgowAstro.GuideAlert\GlasgowAstro.GuideAlert.csproj", "{96CA7376-97FC-4CED-970D-707B659B24A1}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{96CA7376-97FC-4CED-970D-707B659B24A1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{96CA7376-97FC-4CED-970D-707B659B24A1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{96CA7376-97FC-4CED-970D-707B659B24A1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{96CA7376-97FC-4CED-970D-707B659B24A1}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {4D52C9E4-7468-477E-9E26-26E0A6657DE8}
+	EndGlobalSection
+EndGlobal
