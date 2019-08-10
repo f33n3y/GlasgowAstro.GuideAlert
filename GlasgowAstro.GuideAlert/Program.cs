@@ -1,6 +1,8 @@
-﻿using System;
+﻿using GlasgowAstro.GuideAlert.Models;
+using Newtonsoft.Json;
+using System;
+using System.IO;
 using System.Net.Sockets;
-using System.Text;
 
 namespace GlasgowAstro.GuideAlert
 {
@@ -16,17 +18,36 @@ namespace GlasgowAstro.GuideAlert
             Console.WriteLine("Press any key to continue...");
             Console.ReadKey(true);
 
+            //TODO: Move to classes
             try
             {
-                TcpClient client = new TcpClient(Host, Port);
-                NetworkStream stream = client.GetStream();
-                byte[] readBuffer = new byte[256];
-
+                TcpClient client = new TcpClient(Host, Port); 
+                StreamReader streamReader = new StreamReader(client.GetStream());
+               
                 while (true)
-                {
-                    var data = stream.Read(readBuffer, 0, readBuffer.Length);
-                    string stringData = Encoding.ASCII.GetString(readBuffer, 0, data);
-                    Console.WriteLine(stringData);
+                {                  
+                    var eventJson = streamReader.ReadLine();
+
+                    if (!string.IsNullOrEmpty(eventJson))
+                    {
+                        Console.WriteLine(eventJson);
+
+                        try
+                        {
+                            var phdEvent = JsonConvert.DeserializeObject<PhdEvent>(eventJson);
+
+                            if (phdEvent != null && phdEvent.Event.Equals("StarLost"))
+                            {
+                                Console.WriteLine("STAR LOST! Sending notification...");
+                                // TODO: Fire off notification...
+                                //(rate limit, wait for X seconds of star loss? - user chooses duration)
+                            }
+                        }
+                        catch (Exception e)
+                        {
+                            // TODO: Logging
+                        }
+                    }                 
                 }
             }
             catch (Exception e)

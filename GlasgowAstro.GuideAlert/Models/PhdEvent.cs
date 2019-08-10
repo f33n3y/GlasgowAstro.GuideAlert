@@ -10,6 +10,8 @@ namespace GlasgowAstro.GuideAlert.Models
 
         public double Timestamp { get; set; }
 
-        public string Host { get; set; }
+        public string Host { get; set; }        
+
+        public string Status { get; set; }
     }
 }
