@@ -2,7 +2,7 @@
 {
     /// <summary>
     /// Represents an event notification message sent
-    /// by PHD server.
+    /// by PHD server
     /// </summary>
     public class PhdEvent
     {

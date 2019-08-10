@@ -4,6 +4,9 @@ using System.Text;
 
 namespace GlasgowAstro.GuideAlert
 {
+    /// <summary>
+    /// Client object used to send requests to a Slack webhook
+    /// </summary>
     public class SlackClient
     {
         private readonly HttpClient httpClient = new HttpClient();
@@ -15,16 +18,20 @@ namespace GlasgowAstro.GuideAlert
             this.webhookRequestUri = webhookRequestUri;
         }
 
-        public bool ConnectAndConfirm()
+        /// <summary>
+        /// Sends POST request to webhook url and checks for
+        /// successful response (200).
+        /// </summary>
+        /// <returns>Boolean indicating successful response</returns>
+        public bool ConnectAndTest()
         {
             try
             {
                 HttpRequestMessage httpRequest = new HttpRequestMessage(HttpMethod.Post, webhookRequestUri);
-
                 var content = new StringContent("{\"text\":\"Test alert\"}", Encoding.UTF8, ContentType);
+
                 var result = httpClient.PostAsync(webhookRequestUri, content)?.Result;
-                var success = result?.StatusCode == System.Net.HttpStatusCode.OK;
-                return success;
+                return result?.StatusCode == System.Net.HttpStatusCode.OK;
             }
             catch (Exception e)
             {
@@ -33,7 +40,7 @@ namespace GlasgowAstro.GuideAlert
             return false;
         }
 
-        public bool SendNotification(string message)
+        public bool SendAlert(string alertMessage)
         {
             // TODO
             return true;

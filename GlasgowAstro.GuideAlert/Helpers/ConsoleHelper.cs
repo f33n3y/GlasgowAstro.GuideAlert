@@ -8,7 +8,7 @@ namespace GlasgowAstro.GuideAlert.Helpers
         {
             Console.ForegroundColor = ConsoleColor.Red;
             Console.WriteLine("*** Guide Alert by GlasgowAstro *** \n");
-            Console.WriteLine("Make sure PHD2 is looping exposures and server is enabled before continuing");
+            Console.WriteLine("Make sure PHD is looping exposures and server is enabled before continuing");
             Console.WriteLine("Press any key to continue...\n");
             Console.ReadKey(true);
         }
@@ -23,7 +23,13 @@ namespace GlasgowAstro.GuideAlert.Helpers
 
         public static void TestAlertFailure() => Console.WriteLine("Test alert failed");
 
-        public static void ConnectingToPhd() => Console.WriteLine("Connecting to PHD2 server");
+        public static void ConnectingToPhd() => Console.WriteLine("Connecting to PHD server");
+
+        public static void PhdConnectionSuccess() => Console.WriteLine("Successfully connected to PHD server");
+
+        public static void PhdConnectionFailure() => Console.WriteLine("Failed to connect to PHD server");
+
+        public static void StarLostWarning() => Console.WriteLine("*** WARNING: STAR LOST ***");
 
         public static void ProgramTerminated()
         {
