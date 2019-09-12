@@ -1,4 +1,5 @@
 ﻿using GlasgowAstro.GuideAlert.Helpers;
+using GlasgowAstro.GuideAlert.Interfaces;
 using GlasgowAstro.GuideAlert.Models;
 using Newtonsoft.Json;
 using System;
@@ -11,7 +12,7 @@ namespace GlasgowAstro.GuideAlert
     /// Client object used to connect to PHD's TCP service
     /// and capture the event notification messages
     /// </summary>
-    public class PhdClient
+    public class PhdClient : IPhdClient
     {
         private readonly string hostname;
         private readonly int port;
@@ -19,10 +20,10 @@ namespace GlasgowAstro.GuideAlert
         private StreamReader streamReader;
         private int starLossCount = 0;
 
-        public PhdClient(string hostname, int port)
-        {
-            this.hostname = hostname;
-            this.port = port;
+        public PhdClient(/*string hostname, int port*/)
+        {            
+            //this.hostname = hostname;
+            //this.port = port;
         }
 
         /// <summary>
@@ -66,7 +67,7 @@ namespace GlasgowAstro.GuideAlert
 
                 if (!string.IsNullOrWhiteSpace(eventJson))
                 {
-                    Console.WriteLine(eventJson);
+                    //Console.WriteLine(eventJson);
 
                     try
                     {
@@ -76,9 +77,11 @@ namespace GlasgowAstro.GuideAlert
                         {
                             starLossCount++;
                             ConsoleHelper.StarLostWarning();
-                            if (starLossCount == 3) // TODO: Read this value from config
+                            if (starLossCount == 5) // TODO: Read this value from config
                             {
                                 // TODO: Fire off notification
+                                //var sc = new SlackClient();
+                                //sc.SendAlert("Star lost!");
                             }
                         }
                     }

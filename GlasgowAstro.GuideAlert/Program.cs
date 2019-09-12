@@ -1,5 +1,10 @@
 ﻿using GlasgowAstro.GuideAlert.Helpers;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Serilog.Settings.Configuration;
+using Serilog;
 using System;
+using GlasgowAstro.GuideAlert.Interfaces;
 
 namespace GlasgowAstro.GuideAlert
 {
@@ -10,54 +15,41 @@ namespace GlasgowAstro.GuideAlert
 
         static void Main(string[] args)
         {
-            // Prompt user for webhook url
-            ConsoleHelper.DisplayWelcomeMessages();
-            ConsoleHelper.PromptUserForWebhookUrl();
-            var webhookUrl = Console.ReadLine();
+            // Configure services
+            var serviceProvider = ConfigureServices();
 
-            if (string.IsNullOrWhiteSpace(webhookUrl))
-            {
-                ConsoleHelper.InvalidWebhookUrl();
-                ConsoleHelper.ProgramTerminated();
-                return;
-            }
+            // Lift off!...
+            var app = serviceProvider.GetRequiredService<IGuideAlertApp>();
+            app.Start();
+           
+        }
 
-            try
-            {
-                // Try send test alert to Slack
-                ConsoleHelper.TestAlertNotify();
-                SlackClient slackClient = new SlackClient(webhookUrl);
-                var canSendAlerts = slackClient.ConnectAndTest();
+        private static IServiceProvider ConfigureServices()
+        {
+            var serviceCollection = new ServiceCollection();
+            serviceCollection.AddTransient<ISlackClient, SlackClient>();
+            serviceCollection.AddTransient<IPhdClient, PhdClient>();
+            serviceCollection.AddSingleton<IGuideAlertApp, GuideAlertApp>();
 
-                if (!canSendAlerts) // Test alert fail
-                {
-                    ConsoleHelper.TestAlertFailure();
-                    ConsoleHelper.ProgramTerminated();
-                    return;
-                }
+            return serviceCollection.BuildServiceProvider();
+            
+            // TODO: Configure logger
+        }
 
-                // Test alert success. Try get data from PHD stream
-                ConsoleHelper.TestAlertSuccess();
-                ConsoleHelper.ConnectingToPhd();
-                PhdClient phdClient = new PhdClient(Host, Port);
-                var canReadPhdEvents = phdClient.ConnectAndTest();
+        private static IConfiguration BuildConfiguration()
+        {
+            throw new NotImplementedException();
+            //return new ConfigurationBuilder()
+            //    .AddYamlFile("appsettings.yaml")
+            //    .Build());
+        }
 
-                if (!canReadPhdEvents) // PHD connection fail
-                {
-                    ConsoleHelper.PhdConnectionFailure();
-                    ConsoleHelper.ProgramTerminated();
-                }
-
-                // PHD connection success. Start monitoring event messages
-                ConsoleHelper.PhdConnectionSuccess();
-                phdClient.WatchForStarLossEvents();
-
-                // TODO: ...
-            }
-            catch (Exception e)
-            {
-                // TODO: Logging
-            }
+        public static ILogger BuildLogger(IServiceProvider provider)
+        {
+            throw new NotImplementedException();
+            //return new LoggerConfiguration()
+            //    .ReadFrom.Configuration(provider.GetRequiredService<IConfiguration>())
+            //    .CreateLogger();
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using GlasgowAstro.GuideAlert.Interfaces;
+using System;
 using System.Net.Http;
 using System.Text;
 
@@ -7,15 +8,15 @@ namespace GlasgowAstro.GuideAlert
     /// <summary>
     /// Client object used to send requests to a Slack webhook
     /// </summary>
-    public class SlackClient
+    public class SlackClient : ISlackClient
     {
         private readonly HttpClient httpClient = new HttpClient();
-        private readonly string webhookRequestUri;
+        //private readonly string webhookRequestUri;
         private const string ContentType = "application/json";
 
-        public SlackClient(string webhookRequestUri)
+        public SlackClient(/*string webhookRequestUri*/)
         {
-            this.webhookRequestUri = webhookRequestUri;
+            //this.webhookRequestUri = webhookRequestUri;
         }
 
         /// <summary>
@@ -27,10 +28,10 @@ namespace GlasgowAstro.GuideAlert
         {
             try
             {
-                HttpRequestMessage httpRequest = new HttpRequestMessage(HttpMethod.Post, webhookRequestUri);
+                HttpRequestMessage httpRequest = new HttpRequestMessage(HttpMethod.Post, "");
                 var content = new StringContent("{\"text\":\"Test alert\"}", Encoding.UTF8, ContentType);
 
-                var result = httpClient.PostAsync(webhookRequestUri, content)?.Result;
+                var result = httpClient.PostAsync("", content)?.Result;
                 return result?.StatusCode == System.Net.HttpStatusCode.OK;
             }
             catch (Exception e)
