@@ -14,6 +14,8 @@ namespace GlasgowAstro.GuideAlert
     /// </summary>
     public class PhdClient : IPhdClient
     {
+        //private const string Host = "localhost"; // TODO: Read from config
+        //private const int Port = 4400; // TODO: Read from config
         private readonly string hostname;
         private readonly int port;
         private TcpClient client;

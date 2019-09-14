@@ -10,18 +10,15 @@ namespace GlasgowAstro.GuideAlert
 {
     class Program
     {
-        private const string Host = "localhost"; // TODO: Read from config
-        private const int Port = 4400; // TODO: Read from config
 
         static void Main(string[] args)
         {
             // Configure services
             var serviceProvider = ConfigureServices();
 
-            // Lift off!...
+            // Lift off!
             var app = serviceProvider.GetRequiredService<IGuideAlertApp>();
-            app.Start();
-           
+            app.Start();           
         }
 
         private static IServiceProvider ConfigureServices()
