@@ -1,15 +1,18 @@
 ﻿using GlasgowAstro.GuideAlert.Interfaces;
+using Microsoft.Extensions.Logging;
 using System;
 
 namespace GlasgowAstro.GuideAlert
 {
     public class GuideAlertApp : IGuideAlertApp
     {
+        private readonly ILogger<GuideAlertApp> logger;
         private readonly ISlackClient slackClient;
         private readonly IPhdClient phdClient;
 
-        public GuideAlertApp(ISlackClient slackClient, IPhdClient phdClient)
+        public GuideAlertApp(ILogger<GuideAlertApp> logger, ISlackClient slackClient, IPhdClient phdClient)
         {
+            this.logger = logger;
             this.slackClient = slackClient;
             this.phdClient = phdClient;
         }
@@ -18,6 +21,8 @@ namespace GlasgowAstro.GuideAlert
         {
             Console.WriteLine("Starting...");
             Console.ReadLine();
+
+            logger.LogInformation("Logging test");
 
             #region TODO
             //// Prompt user for webhook url

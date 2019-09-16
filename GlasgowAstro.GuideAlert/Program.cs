@@ -1,10 +1,9 @@
-﻿using GlasgowAstro.GuideAlert.Helpers;
+﻿using GlasgowAstro.GuideAlert.Interfaces;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Serilog.Settings.Configuration;
 using Serilog;
 using System;
-using GlasgowAstro.GuideAlert.Interfaces;
+using System.IO;
 
 namespace GlasgowAstro.GuideAlert
 {
@@ -17,36 +16,31 @@ namespace GlasgowAstro.GuideAlert
             var serviceProvider = ConfigureServices();
 
             // Lift off!
-            var app = serviceProvider.GetRequiredService<IGuideAlertApp>();
-            app.Start();           
+            var app = serviceProvider.GetRequiredService<IGuideAlertApp>();       
+            app.Start();
         }
 
         private static IServiceProvider ConfigureServices()
         {
             var serviceCollection = new ServiceCollection();
-            serviceCollection.AddTransient<ISlackClient, SlackClient>();
-            serviceCollection.AddTransient<IPhdClient, PhdClient>();
+
+            // Build config
+            var config = new ConfigurationBuilder()
+                .SetBasePath(Directory.GetCurrentDirectory())
+                .AddJsonFile("appsettings.json", false)
+                .Build();
+           
+            // Configure logging
+            Log.Logger = new LoggerConfiguration()
+                 .ReadFrom.Configuration(config)
+                 .CreateLogger();
+            serviceCollection.AddLogging(loggingBuilder => loggingBuilder.AddSerilog());
+
+            serviceCollection.AddSingleton<ISlackClient, SlackClient>();
+            serviceCollection.AddSingleton<IPhdClient, PhdClient>();
             serviceCollection.AddSingleton<IGuideAlertApp, GuideAlertApp>();
 
             return serviceCollection.BuildServiceProvider();
-            
-            // TODO: Configure logger
-        }
-
-        private static IConfiguration BuildConfiguration()
-        {
-            throw new NotImplementedException();
-            //return new ConfigurationBuilder()
-            //    .AddYamlFile("appsettings.yaml")
-            //    .Build());
-        }
-
-        public static ILogger BuildLogger(IServiceProvider provider)
-        {
-            throw new NotImplementedException();
-            //return new LoggerConfiguration()
-            //    .ReadFrom.Configuration(provider.GetRequiredService<IConfiguration>())
-            //    .CreateLogger();
         }
     }
 }
