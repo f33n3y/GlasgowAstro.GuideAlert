@@ -22,10 +22,8 @@ namespace GlasgowAstro.GuideAlert
         private StreamReader streamReader;
         private int starLossCount = 0;
 
-        public PhdClient(/*string hostname, int port*/)
+        public PhdClient()
         {            
-            //this.hostname = hostname;
-            //this.port = port;
         }
 
         /// <summary>

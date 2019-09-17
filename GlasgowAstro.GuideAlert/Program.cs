@@ -16,29 +16,31 @@ namespace GlasgowAstro.GuideAlert
             var serviceProvider = ConfigureServices();
 
             // Lift off!
-            var app = serviceProvider.GetRequiredService<IGuideAlertApp>();       
+            var app = serviceProvider.GetRequiredService<IGuideAlertApp>();
             app.Start();
         }
 
         private static IServiceProvider ConfigureServices()
         {
-            var serviceCollection = new ServiceCollection();
-
             // Build config
             var config = new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory())
                 .AddJsonFile("appsettings.json", false)
                 .Build();
-           
+
             // Configure logging
             Log.Logger = new LoggerConfiguration()
                  .ReadFrom.Configuration(config)
                  .CreateLogger();
-            serviceCollection.AddLogging(loggingBuilder => loggingBuilder.AddSerilog());
 
+            var serviceCollection = new ServiceCollection();
+            serviceCollection.AddLogging(configure => configure.AddSerilog());
+
+            // Add other services
+            serviceCollection.AddHttpClient();
             serviceCollection.AddSingleton<ISlackClient, SlackClient>();
             serviceCollection.AddSingleton<IPhdClient, PhdClient>();
-            serviceCollection.AddSingleton<IGuideAlertApp, GuideAlertApp>();
+            serviceCollection.AddSingleton<IGuideAlertApp, GuideAlertApp>();            
 
             return serviceCollection.BuildServiceProvider();
         }

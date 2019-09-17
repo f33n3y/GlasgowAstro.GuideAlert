@@ -10,24 +10,26 @@ namespace GlasgowAstro.GuideAlert
     /// </summary>
     public class SlackClient : ISlackClient
     {
-        private readonly HttpClient httpClient = new HttpClient();
-        //private readonly string webhookRequestUri;
+        private readonly IHttpClientFactory httpClientFactory;
         private const string ContentType = "application/json";
 
-        public SlackClient(/*string webhookRequestUri*/)
+        public SlackClient(IHttpClientFactory httpClientFactory)
         {
-            //this.webhookRequestUri = webhookRequestUri;
+            this.httpClientFactory = httpClientFactory;
         }
 
         /// <summary>
-        /// Sends POST request to webhook url and checks for
+        /// Sends POST request to Slack webhook url and checks for
         /// successful response (200).
         /// </summary>
         /// <returns>Boolean indicating successful response</returns>
         public bool ConnectAndTest()
         {
+
             try
             {
+                var httpClient = httpClientFactory.CreateClient();
+                httpClient.BaseAddress = new Uri("");
                 HttpRequestMessage httpRequest = new HttpRequestMessage(HttpMethod.Post, "");
                 var content = new StringContent("{\"text\":\"Test alert\"}", Encoding.UTF8, ContentType);
 
