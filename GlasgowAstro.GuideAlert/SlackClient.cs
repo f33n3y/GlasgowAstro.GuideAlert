@@ -1,4 +1,6 @@
 ﻿using GlasgowAstro.GuideAlert.Interfaces;
+using GlasgowAstro.GuideAlert.Models;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Net.Http;
 using System.Text;
@@ -10,17 +12,20 @@ namespace GlasgowAstro.GuideAlert
     /// </summary>
     public class SlackClient : ISlackClient
     {
-        private readonly HttpClient httpClient = new HttpClient();
-        //private readonly string webhookRequestUri;
-        private const string ContentType = "application/json";
+        private readonly GuideAlertSettings guideAlertSettings;
+        private readonly ILogger<SlackClient> logger;
+        private readonly IHttpClientFactory httpClientFactory;
 
-        public SlackClient(/*string webhookRequestUri*/)
+        public SlackClient(GuideAlertSettings guideAlertSettings, ILogger<SlackClient> logger, 
+            IHttpClientFactory httpClientFactory)
         {
-            //this.webhookRequestUri = webhookRequestUri;
+            this.guideAlertSettings = guideAlertSettings;
+            this.logger = logger;
+            this.httpClientFactory = httpClientFactory;
         }
 
         /// <summary>
-        /// Sends POST request to webhook url and checks for
+        /// Sends POST request to Slack webhook url and checks for
         /// successful response (200).
         /// </summary>
         /// <returns>Boolean indicating successful response</returns>
@@ -28,15 +33,21 @@ namespace GlasgowAstro.GuideAlert
         {
             try
             {
+                if (string.IsNullOrWhiteSpace(guideAlertSettings.SlackWebhookUrl))
+                {
+                    // TODO
+                }
+                var httpClient = httpClientFactory.CreateClient();
+                httpClient.BaseAddress = new Uri("");
                 HttpRequestMessage httpRequest = new HttpRequestMessage(HttpMethod.Post, "");
-                var content = new StringContent("{\"text\":\"Test alert\"}", Encoding.UTF8, ContentType);
+                var content = new StringContent("{\"text\":\"Test alert\"}", Encoding.UTF8, "application/json");
 
                 var result = httpClient.PostAsync("", content)?.Result;
                 return result?.StatusCode == System.Net.HttpStatusCode.OK;
             }
             catch (Exception e)
             {
-                // TODO: Logging              
+                logger.LogError(e, "Failed to send test Slack notification");            
             }
             return false;
         }
@@ -44,6 +55,9 @@ namespace GlasgowAstro.GuideAlert
         public bool SendAlert(string alertMessage)
         {
             // TODO
+            logger.LogInformation("Sending star lost alert");
+
+
             return true;
         }
     }

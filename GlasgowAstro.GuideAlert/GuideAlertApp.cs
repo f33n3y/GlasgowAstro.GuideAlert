@@ -1,6 +1,6 @@
-﻿using GlasgowAstro.GuideAlert.Interfaces;
+﻿using GlasgowAstro.GuideAlert.Helpers;
+using GlasgowAstro.GuideAlert.Interfaces;
 using Microsoft.Extensions.Logging;
-using System;
 
 namespace GlasgowAstro.GuideAlert
 {
@@ -19,14 +19,14 @@ namespace GlasgowAstro.GuideAlert
 
         public void Start()
         {
-            Console.WriteLine("Starting...");
-            Console.ReadLine();
+            logger.LogInformation("Started GuideAlert app");
+            ConsoleHelper.SetConsoleColours();
+            ConsoleHelper.DisplayWelcomeMessages();
 
-            logger.LogInformation("Logging test");
+            slackClient.ConnectAndTest();
 
             #region TODO
             //// Prompt user for webhook url
-            //ConsoleHelper.DisplayWelcomeMessages();
             //ConsoleHelper.PromptUserForWebhookUrl();
 
             //if (string.IsNullOrWhiteSpace(webhookUrl))
