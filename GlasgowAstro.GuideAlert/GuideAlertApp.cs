@@ -19,7 +19,8 @@ namespace GlasgowAstro.GuideAlert
 
         public void Start()
         {
-            logger.LogInformation("Starting GuideAlert app");            
+            logger.LogInformation("Started GuideAlert app");
+            ConsoleHelper.SetConsoleColours();
             ConsoleHelper.DisplayWelcomeMessages();
 
             slackClient.ConnectAndTest();

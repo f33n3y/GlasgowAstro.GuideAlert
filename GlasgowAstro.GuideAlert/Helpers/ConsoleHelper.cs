@@ -4,9 +4,13 @@ namespace GlasgowAstro.GuideAlert.Helpers
 {
     public static class ConsoleHelper
     {
-        public static void DisplayWelcomeMessages()
+        public static void SetConsoleColours()
         {
             Console.ForegroundColor = ConsoleColor.Red;
+        }
+
+        public static void DisplayWelcomeMessages()
+        {
             Console.WriteLine("*** Guide Alert by GlasgowAstro *** \n");
             Console.WriteLine("Make sure PHD is looping exposures and server is enabled before continuing");
             Console.WriteLine("Press any key to continue...\n");
