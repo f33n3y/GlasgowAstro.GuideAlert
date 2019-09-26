@@ -19,60 +19,33 @@ namespace GlasgowAstro.GuideAlert
 
         public void Start()
         {
-            logger.LogInformation("Started GuideAlert app");
+            logger.LogInformation("Guide alert app started.");
             ConsoleHelper.SetConsoleColours();
             ConsoleHelper.DisplayWelcomeMessages();
 
-            slackClient.ConnectAndTest();
+            // Try send test alert to Slack.
+            ConsoleHelper.TestAlertNotify();
+            if (!slackClient.ConnectAndTest())
+            {
+                ConsoleHelper.TestAlertFailure();
+                ConsoleHelper.ProgramTerminated();
+                return;
+            }
 
-            #region TODO
-            //// Prompt user for webhook url
-            //ConsoleHelper.PromptUserForWebhookUrl();
+            // Test alert success. Now try get data from Phd stream.
+            ConsoleHelper.TestAlertSuccess();
+            ConsoleHelper.ConnectingToPhd();
 
-            //if (string.IsNullOrWhiteSpace(webhookUrl))
-            //{
-            //    ConsoleHelper.InvalidWebhookUrl();
-            //    ConsoleHelper.ProgramTerminated();
-            //    return;
-            //}
+            if (!phdClient.ConnectAndTest())
+            {
+                ConsoleHelper.PhdConnectionFailure();
+                ConsoleHelper.ProgramTerminated();
+                return;
+            }
 
-            //try
-            //{
-            //    // Try send test alert to Slack
-            //    ConsoleHelper.TestAlertNotify();
-            //    SlackClient slackClient = new SlackClient(webhookUrl);
-                //var canSendAlerts = slackClient.ConnectAndTest();
-
-            //    if (!canSendAlerts) // Test alert fail
-            //    {
-            //        ConsoleHelper.TestAlertFailure();
-            //        ConsoleHelper.ProgramTerminated();
-            //        return;
-            //    }
-
-            //    // Test alert success. Try get data from PHD stream
-            //    ConsoleHelper.TestAlertSuccess();
-            //    ConsoleHelper.ConnectingToPhd();
-            //    PhdClient phdClient = new PhdClient(Host, Port);
-            //    var canReadPhdEvents = phdClient.ConnectAndTest();
-
-            //    if (!canReadPhdEvents) // PHD connection fail
-            //    {
-            //        ConsoleHelper.PhdConnectionFailure();
-            //        ConsoleHelper.ProgramTerminated();
-            //    }
-
-            //    // PHD connection success. Start monitoring event messages
-            //    ConsoleHelper.PhdConnectionSuccess();
-            //    phdClient.WatchForStarLossEvents();
-
-            //    // TODO: ...
-            //}
-            //catch (Exception e)
-            //{
-            //    // TODO: Logging
-            //}
-            #endregion
+            // Phd connection success. Start monitoring event messages.
+            ConsoleHelper.PhdConnectionSuccess();
+            //phdClient.WatchForStarLossEvents();
         }
     }
 }

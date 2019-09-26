@@ -17,10 +17,6 @@ namespace GlasgowAstro.GuideAlert.Helpers
             Console.ReadKey(true);
         }
 
-        public static void PromptUserForWebhookUrl() => Console.WriteLine("Enter your Slack webhook URL: \n");
-
-        public static void InvalidWebhookUrl() => Console.WriteLine("Invalid webhook URL");
-
         public static void TestAlertNotify() => Console.WriteLine("Sending test alert");
 
         public static void TestAlertSuccess() => Console.WriteLine("Test alert successful");
@@ -37,7 +33,7 @@ namespace GlasgowAstro.GuideAlert.Helpers
 
         public static void ProgramTerminated()
         {
-            Console.WriteLine("Guide Alert terminated");
+            Console.WriteLine("Guide Alert terminated. Check logs for more information.");
             Console.ReadKey(true);
         }
 

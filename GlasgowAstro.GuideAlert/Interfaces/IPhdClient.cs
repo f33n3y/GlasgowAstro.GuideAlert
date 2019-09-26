@@ -2,5 +2,8 @@
 {
     public interface IPhdClient
     {
+        bool ConnectAndTest();
+
+        bool WatchForStarLossEvents();
     }
 }

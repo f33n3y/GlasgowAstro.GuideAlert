@@ -3,6 +3,7 @@
     public interface ISlackClient
     {
         bool ConnectAndTest();
+
         bool SendAlert(string alertMessage);
     }
 }

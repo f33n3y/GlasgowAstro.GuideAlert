@@ -2,6 +2,7 @@
 using GlasgowAstro.GuideAlert.Interfaces;
 using GlasgowAstro.GuideAlert.Models;
 using Newtonsoft.Json;
+using Microsoft.Extensions.Logging;
 using System;
 using System.IO;
 using System.Net.Sockets;
@@ -14,16 +15,13 @@ namespace GlasgowAstro.GuideAlert
     /// </summary>
     public class PhdClient : IPhdClient
     {
-        //private const string Host = "localhost"; // TODO: Read from config
-        //private const int Port = 4400; // TODO: Read from config
-        private readonly string hostname;
-        private readonly int port;
         private TcpClient client;
         private StreamReader streamReader;
-        private int starLossCount = 0;
+        private readonly ILogger<PhdClient> logger;
 
-        public PhdClient()
-        {            
+        public PhdClient(ILogger<PhdClient> logger)
+        {
+            this.logger = logger;
         }
 
         /// <summary>
@@ -35,17 +33,19 @@ namespace GlasgowAstro.GuideAlert
         {
             try
             {
-                client = new TcpClient(hostname, port);
-                streamReader = new StreamReader(client.GetStream());
-                var eventJson = streamReader.ReadLine();
-                if (!string.IsNullOrWhiteSpace(eventJson))
-                {
-                    return true;
-                }
+                // TODO
+
+                //client = new TcpClient(hostname, port);
+                //streamReader = new StreamReader(client.GetStream());
+                //var eventJson = streamReader.ReadLine();
+                //if (!string.IsNullOrWhiteSpace(eventJson))
+                //{
+                //    return true;
+                //}
             }
             catch (Exception e)
             {
-                // TODO: Logging
+                logger.LogError(e, "Failed to connect to Phd server");
             }
             return false;
         }
@@ -65,31 +65,31 @@ namespace GlasgowAstro.GuideAlert
             {
                 var eventJson = streamReader.ReadLine();
 
-                if (!string.IsNullOrWhiteSpace(eventJson))
-                {
-                    //Console.WriteLine(eventJson);
+                //if (!string.IsNullOrWhiteSpace(eventJson))
+                //{
+                //    //Console.WriteLine(eventJson);
 
-                    try
-                    {
-                        var phdEvent = JsonConvert.DeserializeObject<PhdEvent>(eventJson);
+                //    try
+                //    {
+                //        var phdEvent = JsonConvert.DeserializeObject<PhdEvent>(eventJson);
 
-                        if (phdEvent != null && phdEvent.Event.Equals("StarLost"))
-                        {
-                            starLossCount++;
-                            ConsoleHelper.StarLostWarning();
-                            if (starLossCount == 5) // TODO: Read this value from config
-                            {
-                                // TODO: Fire off notification
-                                //var sc = new SlackClient();
-                                //sc.SendAlert("Star lost!");
-                            }
-                        }
-                    }
-                    catch (Exception e)
-                    {
-                        // TODO: Logging
-                    }
-                }
+                //        if (phdEvent != null && phdEvent.Event.Equals("StarLost"))
+                //        {
+                //            starLossCount++;
+                //            ConsoleHelper.StarLostWarning();
+                //            if (starLossCount == 5) // TODO: Read this value from config
+                //            {
+                //                // TODO: Fire off notification
+                //                //var sc = new SlackClient();
+                //                //sc.SendAlert("Star lost!");
+                //            }
+                //        }
+                //    }
+                //    catch (Exception e)
+                //    {
+                //        // TODO: Logging
+                //    }
+                //}
             }
         }
     }

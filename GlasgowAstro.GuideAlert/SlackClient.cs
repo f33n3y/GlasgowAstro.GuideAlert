@@ -35,10 +35,13 @@ namespace GlasgowAstro.GuideAlert
             {
                 if (string.IsNullOrWhiteSpace(guideAlertSettings.SlackWebhookUrl))
                 {
-                    // TODO
+                    logger.LogInformation("No webhook URL found in config.");
+                    return false;
                 }
+
                 var httpClient = httpClientFactory.CreateClient();
-                httpClient.BaseAddress = new Uri("");
+                httpClient.BaseAddress = new Uri(guideAlertSettings.SlackWebhookUrl);
+
                 HttpRequestMessage httpRequest = new HttpRequestMessage(HttpMethod.Post, "");
                 var content = new StringContent("{\"text\":\"Test alert\"}", Encoding.UTF8, "application/json");
 
@@ -47,7 +50,7 @@ namespace GlasgowAstro.GuideAlert
             }
             catch (Exception e)
             {
-                logger.LogError(e, "Failed to send test Slack notification");            
+                logger.LogError(e, "Failed to send test Slack notification.");            
             }
             return false;
         }
@@ -55,7 +58,7 @@ namespace GlasgowAstro.GuideAlert
         public bool SendAlert(string alertMessage)
         {
             // TODO
-            logger.LogInformation("Sending star lost alert");
+            logger.LogInformation("Sending star lost alert.");
 
 
             return true;
