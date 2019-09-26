@@ -6,6 +6,10 @@
 
         public string AlertMessage { get; set; }
 
-        public string LossCountThreshold { get; set; }
+        public int LossCountThreshold { get; set; }
+
+        public string PhdHost { get; set; }
+
+        public int PhdPort { get; set; }
     }
 }
