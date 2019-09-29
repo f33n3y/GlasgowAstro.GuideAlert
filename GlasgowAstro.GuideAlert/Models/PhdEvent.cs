@@ -7,23 +7,23 @@
     public class PhdEvent
     {
         /// <summary>
-        /// The name of the event
+        /// Gets or sets the name of a event
         /// </summary>
         public string Event { get; set; }
 
         /// <summary>
-        /// Timestamp of event in seconds from
-        /// epoch, including fractional seconds
+        /// Gets or sets the timestamp of an event 
+        /// in seconds from epoch, including fractional seconds
         /// </summary>
         public double Timestamp { get; set; }
 
         /// <summary>
-        /// Hostname of the machine running PHD
+        /// Gets or sets the hostname of the machine running PHD
         /// </summary>
         public string Host { get; set; }        
 
         /// <summary>
-        /// Error message returned when star is lost
+        /// Gets or sets the error message returned when star is lost
         /// </summary>
         public string Status { get; set; }
     }

@@ -1,18 +1,17 @@
-﻿using GlasgowAstro.GuideAlert.Interfaces;
+﻿using System;
+using System.IO;
+using GlasgowAstro.GuideAlert.Interfaces;
 using GlasgowAstro.GuideAlert.Models;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Serilog;
-using System;
-using System.IO;
 
 namespace GlasgowAstro.GuideAlert
 {
-    class Program
+    public class Program
     {
-
-        static void Main(string[] args)
+        public static void Main(string[] args)
         {
             // Configure services
             IServiceProvider serviceProvider = ConfigureServices();

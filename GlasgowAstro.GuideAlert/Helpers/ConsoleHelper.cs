@@ -36,6 +36,5 @@ namespace GlasgowAstro.GuideAlert.Helpers
             Console.WriteLine("Guide Alert terminated. Check logs for more information.");
             Console.ReadKey(true);
         }
-
     }
 }

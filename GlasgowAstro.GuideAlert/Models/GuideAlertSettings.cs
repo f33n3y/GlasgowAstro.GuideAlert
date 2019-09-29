@@ -10,6 +10,6 @@
 
         public string PhdHost { get; set; }
 
-        public int PhdPort { get; set; }
+        public ushort PhdPort { get; set; }
     }
 }

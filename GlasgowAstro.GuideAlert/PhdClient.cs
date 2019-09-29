@@ -1,11 +1,10 @@
-﻿using GlasgowAstro.GuideAlert.Helpers;
-using GlasgowAstro.GuideAlert.Interfaces;
-using GlasgowAstro.GuideAlert.Models;
-using Newtonsoft.Json;
-using Microsoft.Extensions.Logging;
-using System;
+﻿using System;
 using System.IO;
 using System.Net.Sockets;
+using GlasgowAstro.GuideAlert.Interfaces;
+using GlasgowAstro.GuideAlert.Models;
+using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 
 namespace GlasgowAstro.GuideAlert
 {
@@ -15,17 +14,21 @@ namespace GlasgowAstro.GuideAlert
     /// </summary>
     public class PhdClient : IPhdClient
     {
-        private TcpClient client;
-        private StreamReader streamReader;
+        private const string DefaultPhdHostname = "localhost";
+        private const ushort DefautlPhdPort = 4400;
+        private readonly GuideAlertSettings guideAlertSettings;
         private readonly ILogger<PhdClient> logger;
+        private TcpClient tcpClient;
+        private StreamReader streamReader;
 
-        public PhdClient(ILogger<PhdClient> logger)
+        public PhdClient(GuideAlertSettings guideAlertSettings, ILogger<PhdClient> logger)
         {
+            this.guideAlertSettings = guideAlertSettings;
             this.logger = logger;
         }
 
         /// <summary>
-        /// Peforms initial setup of TCP connection and
+        /// Performs initial setup of TCP connection and
         /// reads first line from stream to test connection
         /// </summary>
         /// <returns>Boolean indicating successful TCP connnection</returns>
@@ -33,20 +36,35 @@ namespace GlasgowAstro.GuideAlert
         {
             try
             {
-                // TODO
+                var hostname = guideAlertSettings.PhdHost;
+                var portNumber = guideAlertSettings.PhdPort;
 
-                //client = new TcpClient(hostname, port);
-                //streamReader = new StreamReader(client.GetStream());
-                //var eventJson = streamReader.ReadLine();
-                //if (!string.IsNullOrWhiteSpace(eventJson))
-                //{
-                //    return true;
-                //}
+                if (string.IsNullOrWhiteSpace(hostname))
+                {
+                    logger.LogWarning("No PHD hostname found in config. Falling back to localhost");
+                    return false;
+                }
+
+                if (portNumber < ushort.MinValue && portNumber > ushort.MaxValue)
+                {
+                    logger.LogWarning("Invalid or missing port number in config. Falling back to port 4400");
+                    return false;
+                }
+
+                tcpClient = new TcpClient(hostname, portNumber);
+                streamReader = new StreamReader(tcpClient.GetStream());
+
+                var eventJson = streamReader.ReadLine();
+                if (!string.IsNullOrWhiteSpace(eventJson))
+                {
+                    return true;
+                }
             }
             catch (Exception e)
             {
-                logger.LogError(e, "Failed to connect to Phd server");
+                logger.LogError(e, "Failed to connect to Phd server.");
             }
+
             return false;
         }
 
@@ -56,41 +74,45 @@ namespace GlasgowAstro.GuideAlert
         /// <returns></returns>
         public bool WatchForStarLossEvents()
         {
-            if (client == null || streamReader == null)
+            if (tcpClient == null || streamReader == null)
             {
+                logger.LogError("TCPClient or StreamReader is null.");
                 return false;
             }
 
-            while (true)
-            {
-                var eventJson = streamReader.ReadLine();
+            return true; // TODO
 
-                //if (!string.IsNullOrWhiteSpace(eventJson))
-                //{
-                //    //Console.WriteLine(eventJson);
+            //while (true)
+            //{
+            //    var eventJson = streamReader.ReadLine();
 
-                //    try
-                //    {
-                //        var phdEvent = JsonConvert.DeserializeObject<PhdEvent>(eventJson);
+            //    if (!string.IsNullOrWhiteSpace(eventJson))
+            //    {
 
-                //        if (phdEvent != null && phdEvent.Event.Equals("StarLost"))
-                //        {
-                //            starLossCount++;
-                //            ConsoleHelper.StarLostWarning();
-                //            if (starLossCount == 5) // TODO: Read this value from config
-                //            {
-                //                // TODO: Fire off notification
-                //                //var sc = new SlackClient();
-                //                //sc.SendAlert("Star lost!");
-                //            }
-                //        }
-                //    }
-                //    catch (Exception e)
-                //    {
-                //        // TODO: Logging
-                //    }
-                //}
-            }
+            //        //Console.WriteLine(eventJson);
+
+            //        try
+            //        {
+            //            var phdEvent = JsonConvert.DeserializeObject<PhdEvent>(eventJson);
+
+            //            if (phdEvent != null && phdEvent.Event.Equals("StarLost"))
+            //            {
+            //                starLossCount++;
+            //                ConsoleHelper.StarLostWarning();
+            //                if (starLossCount == 5) // TODO: Read this value from config
+            //                {
+            //                    // TODO: Fire off notification
+            //                    //var sc = new SlackClient();
+            //                    //sc.SendAlert("Star lost!");
+            //                }
+            //            }
+            //        }
+            //        catch (Exception e)
+            //        {
+            //            logger.LogError(e, "Failed to send test Slack notification.");
+            //        }
+            //    }
+            //}
         }
     }
 }

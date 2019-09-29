@@ -45,7 +45,7 @@ namespace GlasgowAstro.GuideAlert
 
             // Phd connection success. Start monitoring event messages.
             ConsoleHelper.PhdConnectionSuccess();
-            //phdClient.WatchForStarLossEvents();
+            phdClient.WatchForStarLossEvents();             
         }
     }
 }

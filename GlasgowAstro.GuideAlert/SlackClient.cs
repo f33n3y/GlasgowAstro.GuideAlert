@@ -1,9 +1,10 @@
-﻿using GlasgowAstro.GuideAlert.Interfaces;
-using GlasgowAstro.GuideAlert.Models;
-using Microsoft.Extensions.Logging;
-using System;
+﻿using System;
+using System.Net;
 using System.Net.Http;
 using System.Text;
+using GlasgowAstro.GuideAlert.Interfaces;
+using GlasgowAstro.GuideAlert.Models;
+using Microsoft.Extensions.Logging;
 
 namespace GlasgowAstro.GuideAlert
 {
@@ -16,7 +17,7 @@ namespace GlasgowAstro.GuideAlert
         private readonly ILogger<SlackClient> logger;
         private readonly IHttpClientFactory httpClientFactory;
 
-        public SlackClient(GuideAlertSettings guideAlertSettings, ILogger<SlackClient> logger, 
+        public SlackClient(GuideAlertSettings guideAlertSettings, ILogger<SlackClient> logger,
             IHttpClientFactory httpClientFactory)
         {
             this.guideAlertSettings = guideAlertSettings;
@@ -35,23 +36,23 @@ namespace GlasgowAstro.GuideAlert
             {
                 if (string.IsNullOrWhiteSpace(guideAlertSettings.SlackWebhookUrl))
                 {
-                    logger.LogInformation("No webhook URL found in config.");
+                    logger.LogCritical("No webhook URL found in config. This is required to send alerts.");
                     return false;
                 }
 
                 var httpClient = httpClientFactory.CreateClient();
                 httpClient.BaseAddress = new Uri(guideAlertSettings.SlackWebhookUrl);
 
-                HttpRequestMessage httpRequest = new HttpRequestMessage(HttpMethod.Post, "");
                 var content = new StringContent("{\"text\":\"Test alert\"}", Encoding.UTF8, "application/json");
 
-                var result = httpClient.PostAsync("", content)?.Result;
-                return result?.StatusCode == System.Net.HttpStatusCode.OK;
+                var result = httpClient.PostAsync(string.Empty, content)?.Result;
+                return result?.StatusCode == HttpStatusCode.OK;
             }
             catch (Exception e)
             {
-                logger.LogError(e, "Failed to send test Slack notification.");            
+                logger.LogError(e, "Failed to send test Slack notification.");
             }
+
             return false;
         }
 
@@ -59,7 +60,6 @@ namespace GlasgowAstro.GuideAlert
         {
             // TODO
             logger.LogInformation("Sending star lost alert.");
-
 
             return true;
         }
