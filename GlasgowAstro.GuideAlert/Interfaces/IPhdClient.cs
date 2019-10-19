@@ -1,8 +1,10 @@
-﻿namespace GlasgowAstro.GuideAlert.Interfaces
+﻿using System.Threading.Tasks;
+
+namespace GlasgowAstro.GuideAlert.Interfaces
 {
     public interface IPhdClient
     {
-        bool ConnectAndTest();
+        Task<bool> ConnectAndTestAsync();
 
         bool WatchForStarLossEvents();
     }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Net.Sockets;
+using System.Threading.Tasks;
 using GlasgowAstro.GuideAlert.Interfaces;
 using GlasgowAstro.GuideAlert.Models;
 using Microsoft.Extensions.Logging;
@@ -15,9 +16,10 @@ namespace GlasgowAstro.GuideAlert
     public class PhdClient : IPhdClient
     {
         private const string DefaultPhdHostname = "localhost";
-        private const ushort DefautlPhdPort = 4400;
-        private readonly GuideAlertSettings guideAlertSettings;
+        private const ushort DefaultPhdPort = 4400;
         private readonly ILogger<PhdClient> logger;
+        private readonly GuideAlertSettings guideAlertSettings;
+
         private TcpClient tcpClient;
         private StreamReader streamReader;
 
@@ -32,33 +34,35 @@ namespace GlasgowAstro.GuideAlert
         /// reads first line from stream to test connection
         /// </summary>
         /// <returns>Boolean indicating successful TCP connnection</returns>
-        public bool ConnectAndTest()
+        public async Task<bool> ConnectAndTestAsync()
         {
+            throw new NotImplementedException();
+
             try
             {
-                var hostname = guideAlertSettings.PhdHost;
-                var portNumber = guideAlertSettings.PhdPort;
+                //var hostname = guideAlertSettings.PhdHost;
+                //var portNumber = guideAlertSettings.PhdPort;
 
-                if (string.IsNullOrWhiteSpace(hostname))
-                {
-                    logger.LogWarning("No PHD hostname found in config. Falling back to localhost");
-                    return false;
-                }
+                //if (string.IsNullOrWhiteSpace(hostname))
+                //{
+                //    logger.LogWarning("No PHD hostname found in config. Falling back to localhost");
+                //    return false;
+                //}
 
-                if (portNumber < ushort.MinValue && portNumber > ushort.MaxValue)
-                {
-                    logger.LogWarning("Invalid or missing port number in config. Falling back to port 4400");
-                    return false;
-                }
+                //if (portNumber < ushort.MinValue && portNumber > ushort.MaxValue)
+                //{
+                //    logger.LogWarning("Invalid or missing port number in config. Falling back to port 4400");
+                //    return false;
+                //}
 
-                tcpClient = new TcpClient(hostname, portNumber);
-                streamReader = new StreamReader(tcpClient.GetStream());
+                //tcpClient = new TcpClient(hostname, portNumber);
+                //streamReader = new StreamReader(tcpClient.GetStream());
 
-                var eventJson = streamReader.ReadLine();
-                if (!string.IsNullOrWhiteSpace(eventJson))
-                {
-                    return true;
-                }
+                //var eventJson = await streamReader.ReadLineAsync();
+                //if (!string.IsNullOrWhiteSpace(eventJson))
+                //{
+                //    return true;
+                //}
             }
             catch (Exception e)
             {

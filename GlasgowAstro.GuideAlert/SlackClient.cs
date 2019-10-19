@@ -2,6 +2,7 @@
 using System.Net;
 using System.Net.Http;
 using System.Text;
+using System.Threading.Tasks;
 using GlasgowAstro.GuideAlert.Interfaces;
 using GlasgowAstro.GuideAlert.Models;
 using Microsoft.Extensions.Logging;
@@ -25,28 +26,20 @@ namespace GlasgowAstro.GuideAlert
             this.httpClientFactory = httpClientFactory;
         }
 
-        /// <summary>
-        /// Sends POST request to Slack webhook url and checks for
-        /// successful response (200).
-        /// </summary>
-        /// <returns>Boolean indicating successful response</returns>
-        public bool ConnectAndTest()
+        public async Task<bool> ConnectAndTestAsync()
         {
+            throw new NotImplementedException();
+
+            if (string.IsNullOrWhiteSpace(guideAlertSettings?.SlackWebhookUrl))
+            {
+                logger.LogCritical("No webhook URL found in config. This is required to send alerts.");
+                return false;
+            }
+
             try
             {
-                if (string.IsNullOrWhiteSpace(guideAlertSettings.SlackWebhookUrl))
-                {
-                    logger.LogCritical("No webhook URL found in config. This is required to send alerts.");
-                    return false;
-                }
-
-                var httpClient = httpClientFactory.CreateClient();
-                httpClient.BaseAddress = new Uri(guideAlertSettings.SlackWebhookUrl);
-
-                var content = new StringContent("{\"text\":\"Test alert\"}", Encoding.UTF8, "application/json");
-
-                var result = httpClient.PostAsync(string.Empty, content)?.Result;
-                return result?.StatusCode == HttpStatusCode.OK;
+                var alertResponse = await SendAlert(new SlackWebhookRequest { Text = guideAlertSettings.TestAlertMessage });                                             
+                return alertResponse?.StatusCode == HttpStatusCode.OK;
             }
             catch (Exception e)
             {
@@ -55,13 +48,22 @@ namespace GlasgowAstro.GuideAlert
 
             return false;
         }
-
-        public bool SendAlert(string alertMessage)
+  
+        /// <summary>
+        /// Sends POST request to Slack webhook URL.
+        /// </summary>
+        /// <param name="webhookRequest"></param>
+        /// <returns>A HTTP response message</returns>
+        public async Task<HttpResponseMessage> SendAlert(SlackWebhookRequest webhookRequest)
         {
-            // TODO
-            logger.LogInformation("Sending star lost alert.");
+            logger.LogInformation("Sending alert.");
 
-            return true;
+            var httpClient = httpClientFactory.CreateClient();
+            httpClient.BaseAddress = new Uri(guideAlertSettings.SlackWebhookUrl);
+
+            var content = new StringContent("{\"text\":\"Test alert\"}", Encoding.UTF8, "application/json");
+
+            return await httpClient.PostAsync(string.Empty, content);
         }
     }
 }

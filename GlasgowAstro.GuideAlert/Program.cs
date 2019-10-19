@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Threading.Tasks;
 using GlasgowAstro.GuideAlert.Interfaces;
 using GlasgowAstro.GuideAlert.Models;
 using Microsoft.Extensions.Configuration;
@@ -11,14 +12,16 @@ namespace GlasgowAstro.GuideAlert
 {
     public class Program
     {
-        public static void Main(string[] args)
+        public static async Task Main(string[] args)
         {
             // Configure services
             IServiceProvider serviceProvider = ConfigureServices();
 
             // Lift off!
             IGuideAlertApp app = serviceProvider.GetRequiredService<IGuideAlertApp>();
-            app.Start();
+            await app.StartAsync();
+
+            Console.ReadKey();
         }
 
         private static IServiceProvider ConfigureServices()

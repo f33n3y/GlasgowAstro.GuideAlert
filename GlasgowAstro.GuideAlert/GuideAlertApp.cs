@@ -1,6 +1,9 @@
 ﻿using GlasgowAstro.GuideAlert.Helpers;
 using GlasgowAstro.GuideAlert.Interfaces;
 using Microsoft.Extensions.Logging;
+using System;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace GlasgowAstro.GuideAlert
 {
@@ -17,35 +20,44 @@ namespace GlasgowAstro.GuideAlert
             this.phdClient = phdClient;
         }
 
-        public void Start()
+        public async Task StartAsync()
         {
             logger.LogInformation("Guide alert app started.");
             ConsoleHelper.SetConsoleColours();
             ConsoleHelper.DisplayWelcomeMessages();
 
-            // Try send test alert to Slack.
-            ConsoleHelper.TestAlertNotify();
-            if (!slackClient.ConnectAndTest())
+            try
             {
-                ConsoleHelper.TestAlertFailure();
+                // Test Slack webhook and connection to PHD stream
+                var slackTest = slackClient.ConnectAndTestAsync();
+                var phdTest = phdClient.ConnectAndTestAsync();
+
+                await Task.WhenAll(slackTest, phdTest);
+            }
+            catch (AggregateException aggEx)
+            {
+                foreach (var ex in aggEx.InnerExceptions)
+                {
+                    if (ex.Source.Equals(slackClient))
+                    {
+                        ConsoleHelper.TestAlertFailure();
+                        logger.LogCritical(ex, "Slack test alert failed. Check logs for more info.");
+                    }
+                    if (ex.Source.Equals(phdClient))
+                    {
+                        ConsoleHelper.PhdConnectionFailure();
+                        logger.LogCritical(ex, "Failed to connect to PHD stream. Check logs for more info.");
+                    }
+                }
+
                 ConsoleHelper.ProgramTerminated();
                 return;
             }
+         
+            // Tests successful so start monitoring event messages...       
 
-            // Test alert success. Now try get data from Phd stream.
-            ConsoleHelper.TestAlertSuccess();
-            ConsoleHelper.ConnectingToPhd();
-
-            if (!phdClient.ConnectAndTest())
-            {
-                ConsoleHelper.PhdConnectionFailure();
-                ConsoleHelper.ProgramTerminated();
-                return;
-            }
-
-            // Phd connection success. Start monitoring event messages.
-            ConsoleHelper.PhdConnectionSuccess();
-            phdClient.WatchForStarLossEvents();             
+            //ConsoleHelper.ConnectingToPhd();
+            //phdClient.WatchForStarLossEvents();              
         }
     }
 }

@@ -6,6 +6,8 @@
 
         public string AlertMessage { get; set; }
 
+        public string TestAlertMessage { get; set; }
+
         public int LossCountThreshold { get; set; }
 
         public string PhdHost { get; set; }

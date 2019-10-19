@@ -1,9 +1,13 @@
-﻿namespace GlasgowAstro.GuideAlert.Interfaces
+﻿using GlasgowAstro.GuideAlert.Models;
+using System.Net.Http;
+using System.Threading.Tasks;
+
+namespace GlasgowAstro.GuideAlert.Interfaces
 {
     public interface ISlackClient
     {
-        bool ConnectAndTest();
+        Task<bool> ConnectAndTestAsync();
 
-        bool SendAlert(string alertMessage);
+        Task<HttpResponseMessage> SendAlert(SlackWebhookRequest webhookRequest);
     }
 }
