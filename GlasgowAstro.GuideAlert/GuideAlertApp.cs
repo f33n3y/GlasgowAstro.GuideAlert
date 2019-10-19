@@ -41,12 +41,12 @@ namespace GlasgowAstro.GuideAlert
                     if (ex.Source.Equals(slackClient))
                     {
                         ConsoleHelper.TestAlertFailure();
-                        logger.LogCritical(ex, "Slack test alert failed. Check logs for more info.");
+                        logger.LogCritical(ex, "Slack test alert failed.");
                     }
                     if (ex.Source.Equals(phdClient))
                     {
                         ConsoleHelper.PhdConnectionFailure();
-                        logger.LogCritical(ex, "Failed to connect to PHD stream. Check logs for more info.");
+                        logger.LogCritical(ex, "Failed to connect to PHD stream.");
                     }
                 }
 
