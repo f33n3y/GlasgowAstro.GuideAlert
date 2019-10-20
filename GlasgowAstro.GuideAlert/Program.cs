@@ -20,8 +20,7 @@ namespace GlasgowAstro.GuideAlert
             // Lift off!
             IGuideAlertApp app = serviceProvider.GetRequiredService<IGuideAlertApp>();
             await app.StartAsync();
-
-            Console.ReadKey();
+            Console.ReadLine();
         }
 
         private static IServiceProvider ConfigureServices()

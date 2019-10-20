@@ -1,18 +1,18 @@
-﻿using System;
+﻿using GlasgowAstro.GuideAlert.Interfaces;
+using GlasgowAstro.GuideAlert.Models;
+using Microsoft.Extensions.Logging;
+using System;
 using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
-using GlasgowAstro.GuideAlert.Interfaces;
-using GlasgowAstro.GuideAlert.Models;
-using Microsoft.Extensions.Logging;
 
 namespace GlasgowAstro.GuideAlert
 {
     /// <summary>
     /// Client object used to send requests to a Slack webhook
     /// </summary>
-    public class SlackClient : ISlackClient
+    public class SlackClient : ISlackClient, IAlertable
     {
         private readonly GuideAlertSettings guideAlertSettings;
         private readonly ILogger<SlackClient> logger;
@@ -30,25 +30,17 @@ namespace GlasgowAstro.GuideAlert
         {
             throw new NotImplementedException();
 
+            // TO DO
             if (string.IsNullOrWhiteSpace(guideAlertSettings?.SlackWebhookUrl))
             {
                 logger.LogCritical("No webhook URL found in config. This is required to send alerts.");
                 return false;
             }
 
-            try
-            {
-                var alertResponse = await SendAlert(new SlackWebhookRequest { Text = guideAlertSettings.TestAlertMessage });                                             
-                return alertResponse?.StatusCode == HttpStatusCode.OK;
-            }
-            catch (Exception e)
-            {
-                logger.LogError(e, "Failed to send test Slack notification.");
-            }
-
-            return false;
+            var alertResponse = await SendAlert(new SlackWebhookRequest { Text = guideAlertSettings.TestAlertMessage });
+            return alertResponse?.StatusCode == HttpStatusCode.OK;
         }
-  
+
         /// <summary>
         /// Sends POST request to Slack webhook URL.
         /// </summary>
@@ -58,10 +50,10 @@ namespace GlasgowAstro.GuideAlert
         {
             logger.LogInformation("Sending alert.");
 
-            var httpClient = httpClientFactory.CreateClient();
+            var httpClient = httpClientFactory.CreateClient();                                  
             httpClient.BaseAddress = new Uri(guideAlertSettings.SlackWebhookUrl);
 
-            var content = new StringContent("{\"text\":\"Test alert\"}", Encoding.UTF8, "application/json");
+            var content = new StringContent("{\"text\":\"Test alert\"}", Encoding.UTF8, "application/json"); // TODO
 
             return await httpClient.PostAsync(string.Empty, content);
         }

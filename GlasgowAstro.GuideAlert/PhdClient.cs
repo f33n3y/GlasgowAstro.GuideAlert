@@ -1,11 +1,11 @@
-﻿using System;
-using System.IO;
-using System.Net.Sockets;
-using System.Threading.Tasks;
-using GlasgowAstro.GuideAlert.Interfaces;
+﻿using GlasgowAstro.GuideAlert.Interfaces;
 using GlasgowAstro.GuideAlert.Models;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using System;
+using System.IO;
+using System.Net.Sockets;
+using System.Threading.Tasks;
 
 namespace GlasgowAstro.GuideAlert
 {
@@ -16,10 +16,10 @@ namespace GlasgowAstro.GuideAlert
     public class PhdClient : IPhdClient
     {
         private const string DefaultPhdHostname = "localhost";
-        private const ushort DefaultPhdPort = 4400;
+        private const ushort DefaultPhdPortNum = 4400;
+        private const int LinesToReadForTest = 5;
         private readonly ILogger<PhdClient> logger;
         private readonly GuideAlertSettings guideAlertSettings;
-
         private TcpClient tcpClient;
         private StreamReader streamReader;
 
@@ -31,42 +31,49 @@ namespace GlasgowAstro.GuideAlert
 
         /// <summary>
         /// Performs initial setup of TCP connection and
-        /// reads first line from stream to test connection
+        /// reads first few lines from stream to test connection
         /// </summary>
-        /// <returns>Boolean indicating successful TCP connnection</returns>
+        /// <returns>Task with boolean indicating successful TCP connnection</returns>
         public async Task<bool> ConnectAndTestAsync()
         {
-            throw new NotImplementedException();
+            var hostname = guideAlertSettings?.PhdHost;
+            var portNumber = guideAlertSettings.PhdPort;
+
+            if (string.IsNullOrWhiteSpace(guideAlertSettings?.PhdHost))
+            {
+                logger.LogWarning("No PHD hostname found in config. Falling back to localhost.");
+                hostname = DefaultPhdHostname;
+            }
+
+            if (portNumber < ushort.MinValue && portNumber > ushort.MaxValue)
+            {
+                logger.LogWarning("Invalid or missing port number in config. Falling back to port 4400.");
+                portNumber = DefaultPhdPortNum;
+            }
 
             try
             {
-                //var hostname = guideAlertSettings.PhdHost;
-                //var portNumber = guideAlertSettings.PhdPort;
+                tcpClient = new TcpClient(hostname, portNumber);
+                streamReader = new StreamReader(tcpClient.GetStream());
+                var linesRead = 0;
 
-                //if (string.IsNullOrWhiteSpace(hostname))
-                //{
-                //    logger.LogWarning("No PHD hostname found in config. Falling back to localhost");
-                //    return false;
-                //}
-
-                //if (portNumber < ushort.MinValue && portNumber > ushort.MaxValue)
-                //{
-                //    logger.LogWarning("Invalid or missing port number in config. Falling back to port 4400");
-                //    return false;
-                //}
-
-                //tcpClient = new TcpClient(hostname, portNumber);
-                //streamReader = new StreamReader(tcpClient.GetStream());
-
-                //var eventJson = await streamReader.ReadLineAsync();
-                //if (!string.IsNullOrWhiteSpace(eventJson))
-                //{
-                //    return true;
-                //}
+                for (var i = 0; i < LinesToReadForTest; i++)
+                {
+                    var eventJson = await streamReader?.ReadLineAsync();
+                    if (!string.IsNullOrWhiteSpace(eventJson) && JsonConvert.DeserializeObject<PhdEvent>(eventJson) != null)
+                    {
+                        linesRead++;
+                    }
+                }
+                    
+                if (linesRead == LinesToReadForTest)
+                {
+                    return true;
+                }              
             }
             catch (Exception e)
             {
-                logger.LogError(e, "Failed to connect to Phd server.");
+                logger.LogCritical(e, "Failed to connect to Phd server.");
             }
 
             return false;
