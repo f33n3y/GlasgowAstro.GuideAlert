@@ -7,7 +7,9 @@ namespace GlasgowAstro.GuideAlert.Helpers
         public static void DisplayWelcomeMessage()
         {
             Console.ForegroundColor = ConsoleColor.Red;
-            Console.WriteLine("*** Guide Alert by GlasgowAstro *** \n");
+            Console.WriteLine("***********************************");
+            Console.WriteLine("*** Guide Alert by GlasgowAstro ***");
+            Console.WriteLine("*********************************** \n");
             Console.WriteLine("Make sure PHD is looping exposures and server is enabled before continuing");
             Console.WriteLine("Press any key to continue...\n");
             Console.ReadKey(true);
