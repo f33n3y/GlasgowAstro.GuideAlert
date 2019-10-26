@@ -13,5 +13,7 @@
         public string PhdHost { get; set; }
 
         public int PhdPort { get; set; }
+
+        public bool LogPhdEventsToConsole { get; set; }
     }
 }

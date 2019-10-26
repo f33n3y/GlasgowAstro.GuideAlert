@@ -6,6 +6,6 @@ namespace GlasgowAstro.GuideAlert.Interfaces
     {
         Task<bool> ConnectAndTestAsync();
 
-        bool WatchForStarLossEvents();
+        Task<bool> WatchForStarLossEvents();
     }
 }

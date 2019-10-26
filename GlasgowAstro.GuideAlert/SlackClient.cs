@@ -1,6 +1,7 @@
 ﻿using GlasgowAstro.GuideAlert.Interfaces;
 using GlasgowAstro.GuideAlert.Models;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 using System;
 using System.Net;
 using System.Net.Http;
@@ -28,16 +29,18 @@ namespace GlasgowAstro.GuideAlert
 
         public async Task<bool> ConnectAndTestAsync()
         {
-            throw new NotImplementedException();
-
-            // TO DO
             if (string.IsNullOrWhiteSpace(guideAlertSettings?.SlackWebhookUrl))
             {
                 logger.LogCritical("No webhook URL found in config. This is required to send alerts.");
                 return false;
             }
 
-            var alertResponse = await SendAlert(new SlackWebhookRequest { Text = guideAlertSettings.TestAlertMessage });
+            var alertResponse = await SendAlert(new SlackWebhookRequest
+            {
+                Text = guideAlertSettings.TestAlertMessage,
+                IsTest = true
+            });
+
             return alertResponse?.StatusCode == HttpStatusCode.OK;
         }
 
@@ -53,7 +56,9 @@ namespace GlasgowAstro.GuideAlert
             var httpClient = httpClientFactory.CreateClient();                                  
             httpClient.BaseAddress = new Uri(guideAlertSettings.SlackWebhookUrl);
 
-            var content = new StringContent("{\"text\":\"Test alert\"}", Encoding.UTF8, "application/json"); // TODO
+            var webhookJson = JsonConvert.SerializeObject(webhookRequest);
+
+            var content = new StringContent(webhookJson, Encoding.UTF8, "application/json");
 
             return await httpClient.PostAsync(string.Empty, content);
         }

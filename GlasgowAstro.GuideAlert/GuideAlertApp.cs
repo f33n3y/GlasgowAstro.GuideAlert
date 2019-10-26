@@ -1,19 +1,24 @@
 ﻿using GlasgowAstro.GuideAlert.Helpers;
 using GlasgowAstro.GuideAlert.Interfaces;
+using GlasgowAstro.GuideAlert.Models;
 using Microsoft.Extensions.Logging;
 using System;
+using System.Net;
 using System.Threading.Tasks;
 
 namespace GlasgowAstro.GuideAlert
 {
     public class GuideAlertApp : IGuideAlertApp
     {
+        private readonly GuideAlertSettings guideAlertSettings;
         private readonly ILogger<GuideAlertApp> logger;
         private readonly ISlackClient slackClient;
         private readonly IPhdClient phdClient;
 
-        public GuideAlertApp(ILogger<GuideAlertApp> logger, ISlackClient slackClient, IPhdClient phdClient)
+        public GuideAlertApp(GuideAlertSettings guideAlertSettings, ILogger<GuideAlertApp> logger, 
+            ISlackClient slackClient, IPhdClient phdClient)
         {
+            this.guideAlertSettings = guideAlertSettings;
             this.logger = logger;
             this.slackClient = slackClient;
             this.phdClient = phdClient;
@@ -30,7 +35,7 @@ namespace GlasgowAstro.GuideAlert
                 var phdTestSuccess = phdClient.ConnectAndTestAsync();
                 ConsoleHelper.TestAlertNotify();
                 var alertTestSuccess = slackClient.ConnectAndTestAsync();
-               
+
                 if (!await phdTestSuccess)  // TODO Change to waitall or waitany ?? 
                 {
                     ConsoleHelper.PhdConnectionFailure();
@@ -56,7 +61,17 @@ namespace GlasgowAstro.GuideAlert
             ConsoleHelper.PhdConnectionSuccess();
             ConsoleHelper.TestAlertSuccess();
             ConsoleHelper.MonitoringPhdEvents();
-            //phdClient.WatchForStarLossEvents(); // TODO
+
+            if (await phdClient.WatchForStarLossEvents())  //TODO Exception handling
+            {
+                var alertResponse = await slackClient.SendAlert(new SlackWebhookRequest
+                {
+                    Text = guideAlertSettings?.AlertMessage,
+                    IsTest = false
+                });
+                //TODO Check response
+            }
+            //TODO Option to star watching events again
         }
-    }
+    }    
 }

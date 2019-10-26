@@ -1,4 +1,5 @@
-﻿using GlasgowAstro.GuideAlert.Interfaces;
+﻿using GlasgowAstro.GuideAlert.Helpers;
+using GlasgowAstro.GuideAlert.Interfaces;
 using GlasgowAstro.GuideAlert.Models;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
@@ -65,11 +66,11 @@ namespace GlasgowAstro.GuideAlert
                         linesRead++;
                     }
                 }
-                    
+
                 if (linesRead == LinesToReadForTest)
                 {
                     return true;
-                }              
+                }
             }
             catch (Exception e)
             {
@@ -83,47 +84,39 @@ namespace GlasgowAstro.GuideAlert
         /// Reads lines from event stream to look for star loss events
         /// </summary>
         /// <returns></returns>
-        public bool WatchForStarLossEvents()
+        public async Task<bool> WatchForStarLossEvents()
         {
             if (tcpClient == null || streamReader == null)
             {
-                logger.LogError("TCPClient or StreamReader is null.");
+                logger.LogCritical("TCPClient or StreamReader is null.");
                 return false;
             }
 
-            return true; // TODO
+            bool starLost = false;
 
-            //while (true)
-            //{
-            //    var eventJson = streamReader.ReadLine();
+            do
+            {
+                var eventJson = await streamReader.ReadLineAsync();
 
-            //    if (!string.IsNullOrWhiteSpace(eventJson))
-            //    {
+                if (!string.IsNullOrWhiteSpace(eventJson))
+                {
+                    if (guideAlertSettings.LogPhdEventsToConsole)
+                    {
+                        Console.WriteLine(eventJson);
+                    }
 
-            //        //Console.WriteLine(eventJson);
+                    PhdEvent phdEvent = JsonConvert.DeserializeObject<PhdEvent>(eventJson);
+                  
+                    if (phdEvent != null && phdEvent.Event.Equals("starlost"))
+                    {
+                        ConsoleHelper.StarLostWarning();
+                        logger.LogInformation("Star lost, sending alert.");
+                        starLost = true;
+                    }
+                }
+            } while (!starLost);
 
-            //        try
-            //        {
-            //            var phdEvent = JsonConvert.DeserializeObject<PhdEvent>(eventJson);
-
-            //            if (phdEvent != null && phdEvent.Event.Equals("StarLost"))
-            //            {
-            //                starLossCount++;
-            //                ConsoleHelper.StarLostWarning();
-            //                if (starLossCount == 5) // TODO: Read this value from config
-            //                {
-            //                    // TODO: Fire off notification
-            //                    //var sc = new SlackClient();
-            //                    //sc.SendAlert("Star lost!");
-            //                }
-            //            }
-            //        }
-            //        catch (Exception e)
-            //        {
-            //            logger.LogError(e, "Failed to send test Slack notification.");
-            //        }
-            //    }
-            //}
+            return starLost;
         }
     }
 }
