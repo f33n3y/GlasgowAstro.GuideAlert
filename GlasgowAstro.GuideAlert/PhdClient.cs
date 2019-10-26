@@ -106,8 +106,8 @@ namespace GlasgowAstro.GuideAlert
                     }
 
                     PhdEvent phdEvent = JsonConvert.DeserializeObject<PhdEvent>(eventJson);
-                  
-                    if (phdEvent != null && phdEvent.Event.Equals("starlost"))
+
+                    if (phdEvent != null && phdEvent.Event.ToLower().Equals("starlost"))
                     {
                         ConsoleHelper.StarLostWarning();
                         logger.LogInformation("Star lost, sending alert.");
