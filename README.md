@@ -1,5 +1,5 @@
 # GlasgowAstro.GuideAlert
-.NET Core console app which monitors PHD2 for StarLoss events and sends alerts to Slack
+A .NET Core console app which monitors PHD2 for StarLoss events and sends alerts to Slack
 
 ## Status
 Pre-alpha
