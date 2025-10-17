@@ -10,31 +10,31 @@ namespace GlasgowAstro.GuideAlert
 {
     public class GuideAlertApp : IGuideAlertApp
     {
-        private readonly GuideAlertSettings guideAlertSettings;
-        private readonly ILogger<GuideAlertApp> logger;
-        private readonly ISlackClient slackClient;
-        private readonly IPhdClient phdClient;
+        private readonly GuideAlertSettings _guideAlertSettings;
+        private readonly ILogger<GuideAlertApp> _logger;
+        private readonly ISlackClient _slackClient;
+        private readonly IPhdClient _phdClient;
 
         public GuideAlertApp(GuideAlertSettings guideAlertSettings, ILogger<GuideAlertApp> logger, 
             ISlackClient slackClient, IPhdClient phdClient)
         {
-            this.guideAlertSettings = guideAlertSettings;
-            this.logger = logger;
-            this.slackClient = slackClient;
-            this.phdClient = phdClient;
+            _guideAlertSettings = guideAlertSettings;
+            _logger = logger;
+            _slackClient = slackClient;
+            _phdClient = phdClient;
         }
 
         public async Task StartAsync()
         {
             ConsoleHelper.DisplayWelcomeMessage();
-            logger.LogInformation("Guide alert app started.");
+            _logger.LogInformation("Guide alert app started.");
 
             try
             {
                 ConsoleHelper.ConnectingToPhd();
-                var phdTestSuccess = phdClient.ConnectAndTestAsync();
+                var phdTestSuccess = _phdClient.ConnectAndTestAsync();
                 ConsoleHelper.TestAlertNotify();
-                var alertTestSuccess = slackClient.ConnectAndTestAsync();
+                var alertTestSuccess = _slackClient.ConnectAndTestAsync();
 
                 if (!await phdTestSuccess)  // TODO Change to waitall or waitany ?? 
                 {
@@ -52,7 +52,7 @@ namespace GlasgowAstro.GuideAlert
             }
             catch (Exception e)
             {
-                logger.LogCritical(e, "Startup tests failed.");
+                _logger.LogCritical(e, "Startup tests failed.");
                 ConsoleHelper.ProgramTerminated();
                 return;
             }
@@ -62,11 +62,11 @@ namespace GlasgowAstro.GuideAlert
             ConsoleHelper.TestAlertSuccess();
             ConsoleHelper.MonitoringPhdEvents();
 
-            if (await phdClient.WatchForStarLossEvents())  //TODO Exception handling
+            if (await _phdClient.WatchForStarLossEvents())  //TODO Exception handling
             {
-                var alertResponse = await slackClient.SendAlert(new SlackWebhookRequest
+                var alertResponse = await _slackClient.SendAlert(new SlackWebhookRequest
                 {
-                    Text = guideAlertSettings?.AlertMessage,
+                    Text = _guideAlertSettings?.AlertMessage,
                     IsTest = false
                 });
                 //TODO Check response

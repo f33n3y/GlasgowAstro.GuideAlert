@@ -19,15 +19,15 @@ namespace GlasgowAstro.GuideAlert
         private const string DefaultPhdHostname = "localhost";
         private const ushort DefaultPhdPortNum = 4400;
         private const int LinesToReadForTest = 5;
-        private readonly ILogger<PhdClient> logger;
-        private readonly GuideAlertSettings guideAlertSettings;
-        private TcpClient tcpClient;
-        private StreamReader streamReader;
+        private readonly ILogger<PhdClient> _logger;
+        private readonly GuideAlertSettings _guideAlertSettings;
+        private TcpClient _tcpClient;
+        private StreamReader _streamReader;
 
         public PhdClient(GuideAlertSettings guideAlertSettings, ILogger<PhdClient> logger)
         {
-            this.guideAlertSettings = guideAlertSettings;
-            this.logger = logger;
+            _guideAlertSettings = guideAlertSettings;
+            _logger = logger;
         }
 
         /// <summary>
@@ -37,30 +37,30 @@ namespace GlasgowAstro.GuideAlert
         /// <returns>Task with boolean indicating successful TCP connnection</returns>
         public async Task<bool> ConnectAndTestAsync()
         {
-            var hostname = guideAlertSettings?.PhdHost;
-            var portNumber = guideAlertSettings.PhdPort;
+            var hostname = _guideAlertSettings?.PhdHost;
+            var portNumber = _guideAlertSettings.PhdPort;
 
-            if (string.IsNullOrWhiteSpace(guideAlertSettings?.PhdHost))
+            if (string.IsNullOrWhiteSpace(_guideAlertSettings?.PhdHost))
             {
-                logger.LogWarning("No PHD hostname found in config. Falling back to localhost.");
+                _logger.LogWarning("No PHD hostname found in config. Falling back to localhost.");
                 hostname = DefaultPhdHostname;
             }
 
             if (portNumber < ushort.MinValue && portNumber > ushort.MaxValue)
             {
-                logger.LogWarning("Invalid or missing port number in config. Falling back to port 4400.");
+                _logger.LogWarning("Invalid or missing port number in config. Falling back to port 4400.");
                 portNumber = DefaultPhdPortNum;
             }
 
             try
             {
-                tcpClient = new TcpClient(hostname, portNumber);
-                streamReader = new StreamReader(tcpClient.GetStream());
+                _tcpClient = new TcpClient(hostname, portNumber);
+                _streamReader = new StreamReader(_tcpClient.GetStream());
                 var linesRead = 0;
 
                 for (var i = 0; i < LinesToReadForTest; i++)
                 {
-                    var eventJson = await streamReader?.ReadLineAsync();
+                    var eventJson = await _streamReader?.ReadLineAsync();
                     if (!string.IsNullOrWhiteSpace(eventJson) && JsonConvert.DeserializeObject<PhdEvent>(eventJson) != null)
                     {
                         linesRead++;
@@ -74,7 +74,7 @@ namespace GlasgowAstro.GuideAlert
             }
             catch (Exception e)
             {
-                logger.LogCritical(e, "Failed to connect to Phd server.");
+                _logger.LogCritical(e, "Failed to connect to Phd server.");
             }
 
             return false;
@@ -86,9 +86,9 @@ namespace GlasgowAstro.GuideAlert
         /// <returns></returns>
         public async Task<bool> WatchForStarLossEvents()
         {
-            if (tcpClient == null || streamReader == null)
+            if (_tcpClient == null || _streamReader == null)
             {
-                logger.LogCritical("TCPClient or StreamReader is null.");
+                _logger.LogCritical("TCPClient or StreamReader is null.");
                 return false;
             }
 
@@ -96,11 +96,11 @@ namespace GlasgowAstro.GuideAlert
 
             do
             {
-                var eventJson = await streamReader.ReadLineAsync();
+                var eventJson = await _streamReader.ReadLineAsync();
 
                 if (!string.IsNullOrWhiteSpace(eventJson))
                 {
-                    if (guideAlertSettings.LogPhdEventsToConsole)
+                    if (_guideAlertSettings.LogPhdEventsToConsole)
                     {
                         Console.WriteLine(eventJson);
                     }
@@ -110,7 +110,7 @@ namespace GlasgowAstro.GuideAlert
                     if (phdEvent != null && phdEvent.Event.ToLower().Equals("starlost"))
                     {
                         ConsoleHelper.StarLostWarning();
-                        logger.LogInformation("Star lost, sending alert.");
+                        _logger.LogInformation("Star lost, sending alert.");
                         starLost = true;
                     }
                 }
