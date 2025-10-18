@@ -26,7 +26,7 @@ During long astrophotography imaging sessions, losing the guide star can result 
 
 ## Technical Stack
 
-- **.NET Core 3.0**: Cross-platform console application
+- **.NET 8.0**: Cross-platform console application
 - **Dependency Injection**: Microsoft.Extensions.DependencyInjection for service management
 - **Configuration**: JSON-based configuration with Microsoft.Extensions.Configuration
 - **Logging**: Serilog with file and console output
@@ -61,7 +61,7 @@ Configuration is managed through `appsettings.json`:
 
 ## Prerequisites
 
-- .NET Core 3.0 or later runtime
+- .NET 8.0 or later runtime
 - PHD2 guiding software running with event server enabled
 - Slack workspace with incoming webhook configured
 
