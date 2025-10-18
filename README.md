@@ -83,7 +83,6 @@ Pre-alpha - Under active development
 
 ## Links
 
-- Instagram: https://www.instagram.com/glasgowastro
 - Website: https://glasgowastro.co.uk
 
 ## License
